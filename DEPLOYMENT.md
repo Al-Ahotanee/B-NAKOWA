@@ -74,10 +74,10 @@ The repository root contains `render.yaml`. Render recognizes this as a Blueprin
 
 In the Render Dashboard, choose **New → Blueprint**, connect the GitHub repository, select the `main` branch, and review the service definition. Render’s Blueprint specification supports the Node runtime, build command, start command, environment variables, and health-check path used by this project.[1]
 
-The Render Free service uses these commands:
+The Render Free service uses these commands. The build command installs the pinned pnpm release through npm instead of invoking Render’s bundled Corepack. This avoids the `Cannot find matching keyid` signature-verification failure shown in the supplied Render log.
 
 ```text
-Build Command:     corepack enable && pnpm install --frozen-lockfile && pnpm build
+Build Command:     npm install --global pnpm@10.15.1 && pnpm install --frozen-lockfile && pnpm build
 Start Command:     pnpm start
 Health Check Path: /healthz
 ```
@@ -112,12 +112,12 @@ If you create the service manually instead of using the Blueprint, use the follo
 |---|---|
 | Language | Node |
 | Branch | `main` |
-| Build Command | `corepack enable && pnpm install --frozen-lockfile && pnpm build` |
+| Build Command | `npm install --global pnpm@10.15.1 && pnpm install --frozen-lockfile && pnpm build` |
 | Start Command | `pnpm start` |
 | Health Check Path | `/healthz` |
 | Plan | Free for testing and small workloads |
 
-Do not add a pre-deploy command. Complete Neon SQL initialization before clicking the first deployment.
+Do not add a pre-deploy command. Complete Neon SQL initialization before clicking the first deployment. If the Render Dashboard still shows the old command, replace it with `npm install --global pnpm@10.15.1 && pnpm install --frozen-lockfile && pnpm build`. The official pnpm documentation lists installation through npm as a supported installation path and notes that outdated Corepack signatures can cause installation failures.[5]
 
 ## 7. Verify the first deployment
 
@@ -219,3 +219,4 @@ The expected response is:
 [2]: https://render.com/docs/web-services "Render: Web Services"
 [3]: https://render.com/docs/deploy-node-express-app "Render: Deploy a Node Express App"
 [4]: https://render.com/docs/postgresql-creating-connecting "Render: Create and Connect to Render Postgres"
+[5]: https://pnpm.io/10.x/installation "pnpm 10.x: Installation"
