@@ -1,0 +1,42 @@
+{
+  "name": "bnakowa-modern-guest-house",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "packageManager": "pnpm@10.15.1",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "rm -rf dist && esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --outfile=dist/public/client.js && cp index.html styles.css dist/public/ && esbuild server.ts --bundle --platform=node --packages=external --format=esm --outfile=dist/server.js",
+    "start": "NODE_ENV=production node dist/server.js",
+    "check": "tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --jsx react-jsx --lib ES2022,DOM,DOM.Iterable --esModuleInterop --skipLibCheck server.ts client.tsx"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "@trpc/client": "^11.6.0",
+    "@trpc/react-query": "^11.6.0",
+    "@trpc/server": "^11.6.0",
+    "cookie": "^1.0.2",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "express": "^4.21.2",
+    "jose": "^6.1.0",
+    "lucide-react": "^0.468.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "sonner": "^2.0.7",
+    "wouter": "^3.3.5",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^24.7.0",
+    "@types/pg": "^8.15.4",
+    "@types/react": "^19.2.1",
+    "@types/react-dom": "^19.2.1",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.9.3"
+  }
+}
