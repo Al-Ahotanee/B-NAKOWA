@@ -149,9 +149,13 @@ The seed data includes sample guests, reservations, payment records, and an inac
 
 ## 9. Troubleshooting
 
+### The browser still reports `React is not defined`
+
+Confirm that the latest commit containing `--jsx=automatic` in the `pnpm build` script and `maxAge: 0` in `server.ts` is deployed. Render’s service URL can otherwise continue serving an older `client.js` from the previous deployment or from the browser cache. Trigger a new deployment for the new commit, then perform a hard refresh or open the site in a private window. In Chrome on Windows/Linux use `Ctrl+Shift+R`; on macOS use `Cmd+Shift+R`. If the old stack trace remains, open DevTools → **Application** → **Storage** → **Clear site data**, then reload.
+
 ### The build fails during dependency installation
 
-Confirm that both `package.json` and `pnpm-lock.yaml` are committed. The build uses `pnpm install --frozen-lockfile`, so any dependency change must be committed with a regenerated lockfile:
+Confirm that both `package.json` and `pnpm-lock.yaml` are committed. The build uses `pnpm install --frozen-lockfile` after installing pnpm `10.15.1` through npm, so any dependency change must be committed with a regenerated lockfile:
 
 ```bash
 pnpm install

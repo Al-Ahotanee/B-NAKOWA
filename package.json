@@ -6,7 +6,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "rm -rf dist && esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --outfile=dist/public/client.js && cp index.html styles.css dist/public/ && esbuild server.ts --bundle --platform=node --packages=external --format=esm --outfile=dist/server.js",
+    "build": "rm -rf dist && esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --jsx=automatic --outfile=dist/public/client.js && cp index.html styles.css dist/public/ && esbuild server.ts --bundle --platform=node --packages=external --format=esm --outfile=dist/server.js",
     "start": "NODE_ENV=production node dist/server.js",
     "check": "tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --jsx react-jsx --lib ES2022,DOM,DOM.Iterable --esModuleInterop --skipLibCheck server.ts client.tsx"
   },
