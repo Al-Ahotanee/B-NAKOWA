@@ -3,7 +3,7 @@ import express, { type Request, type Response } from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-import { Pool, type PoolClient } from "pg";
+import { Pool, type PoolClient, types } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { SignJWT, jwtVerify } from "jose";
 import { parse, serialize } from "cookie";
@@ -13,6 +13,15 @@ import { z } from "zod";
 
 const TAX_RATE = 0.075;
 const ACTIVE_STATUSES = ["pending", "confirmed", "checked_in"] as const;
+// Postgres `date` columns (check_in/check_out) are parsed into JS Date objects
+// by pg's default type parser (OID 1082). Once those cross the tRPC boundary as
+// JSON they become full ISO timestamps ("2026-01-15T00:00:00.000Z"), but every
+// consumer in this app — client-side `shortDate`, the arrivals KPI comparison,
+// room-search date matching, the CSV export, monthly analytics grouping — treats
+// check-in/check-out as plain "YYYY-MM-DD" strings. Returning the raw column
+// text instead of a parsed Date keeps that contract true everywhere at once,
+// rather than converting back to a string at each call site individually.
+types.setTypeParser(types.builtins.DATE, value => value);
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 // In production this file runs as dist/server.js, so ROOT is dist/ and the built
