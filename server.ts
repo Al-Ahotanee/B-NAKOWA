@@ -179,7 +179,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(express.json({ limit: "1mb" }));
 app.get("/healthz", async (_req, res) => { try { await verifyDatabaseConnection(); res.status(200).json({ status: "ok" }); } catch (error) { res.status(503).json({ status: "unavailable", error: error instanceof Error ? error.message : "Database check failed" }); } });
-app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext: ({ req, res }) => ({ req, res }), onError: ({ path: route, error }) => console.error(`[tRPC] ${route || "unknown"}: ${error.message}`) }));
+app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext: async ({ req, res }) => ({ req, res, staff: await readStaff(req) }), onError: ({ path: route, error }) => console.error(`[tRPC] ${route || "unknown"}: ${error.message}`) }));
 app.use(express.static(PUBLIC_DIR, { index: false, maxAge: 0, etag: true }));
 app.get("*", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html"), error => { if (error) res.status(500).send("Client build not found. Run `npm run build:client` (or `npm run dev`) first."); }));
 
