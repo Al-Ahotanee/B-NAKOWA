@@ -15,7 +15,13 @@ const TAX_RATE = 0.075;
 const ACTIVE_STATUSES = ["pending", "confirmed", "checked_in"] as const;
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const PUBLIC_DIR = path.join(ROOT, "public");
+// In production this file runs as dist/server.js, so ROOT is dist/ and the built
+// client lives right next to it at dist/public. In dev it runs as server.ts from
+// the project root via tsx, so ROOT is the project root and the built client
+// (from `npm run build:client`) lives at dist/public relative to that root.
+// Resolving on path.basename(ROOT) keeps both cases pointed at the same build
+// output instead of dev looking for a "public" folder that never gets created.
+const PUBLIC_DIR = path.basename(ROOT) === "dist" ? path.join(ROOT, "public") : path.join(ROOT, "dist", "public");
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: Number(process.env.DB_POOL_MAX || 10),
@@ -175,7 +181,7 @@ app.use(express.json({ limit: "1mb" }));
 app.get("/healthz", async (_req, res) => { try { await verifyDatabaseConnection(); res.status(200).json({ status: "ok" }); } catch (error) { res.status(503).json({ status: "unavailable", error: error instanceof Error ? error.message : "Database check failed" }); } });
 app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext: ({ req, res }) => ({ req, res }), onError: ({ path: route, error }) => console.error(`[tRPC] ${route || "unknown"}: ${error.message}`) }));
 app.use(express.static(PUBLIC_DIR, { index: false, maxAge: 0, etag: true }));
-app.get("*", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
+app.get("*", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html"), error => { if (error) res.status(500).send("Client build not found. Run `npm run build:client` (or `npm run dev`) first."); }));
 
 async function main() {
   await ensureDatabaseReady();

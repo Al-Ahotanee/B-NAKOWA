@@ -5,8 +5,11 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "rm -rf dist && esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --jsx=automatic --outfile=dist/public/client.js && cp index.html styles.css dist/public/ && esbuild server.ts --bundle --platform=node --packages=external --format=esm --outfile=dist/server.js",
+    "build:client": "esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --jsx=automatic --outfile=dist/public/client.js",
+    "build:static": "mkdir -p dist/public && cp index.html styles.css dist/public/",
+    "build:server": "esbuild server.ts --bundle --platform=node --packages=external --format=esm --outfile=dist/server.js",
+    "build": "rm -rf dist && npm run build:client && npm run build:static && npm run build:server",
+    "dev": "npm run build:client && npm run build:static && (esbuild client.tsx --bundle --format=esm --loader:.tsx=tsx --jsx=automatic --outfile=dist/public/client.js --watch &) && tsx watch server.ts",
     "start": "NODE_ENV=production node dist/server.js",
     "check": "tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --jsx react-jsx --lib ES2022,DOM,DOM.Iterable --esModuleInterop --skipLibCheck server.ts client.tsx"
   },
